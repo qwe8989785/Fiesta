@@ -1,0 +1,18 @@
+{
+    "python.pythonPath": "${workspaceFolder}/fiesta/Scripts/python.exe",
+    "python.venvPath": "${workspaceFolder}/fiesta",
+    "python.testing.cwd":"${fileDirname}",
+    "launch": {
+        "configurations": [
+            {   "name": "當前文件(外部終端)", 
+                "type": "python", 
+                "request": "launch", 
+                "program": "${file}", 
+                "cwd": "${fileDirname} ", 
+                "console": "externalTerminal" }
+        ],
+        "compounds": []
+    },
+    // "python.linting.pylintArgs": ["--init-hook",
+    //     "import sys; sys.path.append('<absolute path to myapp directory>')"],
+}
