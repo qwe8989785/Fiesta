@@ -1,20 +1,9 @@
 from flask import Flask,jsonify,request,render_template,url_for,Response,send_file
 import pymysql
 import numpy as np
-import groupModel
-import authModel
-import TagModel
-import ticketModel as TM
-import SendEmailModel as SM
-import ActivityModel as Act
-import confirmModel as CM
-import showModel as show
-import lotteModel as lotte
-import showScoreModel as showScore
-import showUserFeedbackModel as SUFM
-import actScoreModel as actScore
-import QRcodeModel as QR
-import imageModel as IM
+from .Mod import (groupModel,authModel,TagModel,ticketModel,SendEmailModel,ActivityModel,confirmModel,
+showModel,lotteModel,showScoreModel,showUserFeedbackModel,actScoreModel,actScoreModel,QRcodeModel,
+imageModel)
 from flask_cors import CORS
 from threading import Thread
 from gevent.pywsgi import WSGIServer
@@ -116,7 +105,7 @@ def SendConfirmEmail():
         headResult['code'] = '008'
         db.close()
         return jsonify(headResult) 
-    cm = CM.AuthConfirm(Id)
+    cm = confirmModel.AuthConfirm(Id)
     token = cm.create_confirm_token()
     if inputData['type'] == '1':    
         confirm_url = 'fiesta.nkust.edu.tw:8888/Fiestadb/Account/ValidateEmail?token=' + str(token)[2:-1]
@@ -133,7 +122,7 @@ def ValidateConfirmEmail_SighUp():
             'code' : '001'
     }
     token = request.args['token']
-    cm = CM.AuthConfirm(0)
+    cm = confirmModel.AuthConfirm(0)
     Account = authModel.FiestaDbModel() 
     data = cm.validate_confirm_token(token)
     if(data == False):
@@ -153,7 +142,7 @@ def ValidateLogin():
             'code' : '001',
             'result' : []
     }
-    cm = CM.AuthConfirm(0)
+    cm = confirmModel.AuthConfirm(0)
     Account = authModel.FiestaDbModel() 
     data = get_jwt_identity()
     if(data == False):
@@ -173,7 +162,7 @@ def ValidateConfirmEmail_Forget():
             'code' : '001'
     }
     token = request.args['token']
-    cm = CM.authModelConfirm(0)
+    cm = confirmModel.authModelConfirm(0)
     data = cm.validate_confirm_token(token)
     if(data == False):
         headResult['code'] = '009'
@@ -442,7 +431,7 @@ def _selectGroupAct_():
 
 @app.route('/Fiestadb/Activity/select' ,methods=['POST']) 
 def getActData():
-    result = Act.getActivityData(request.get_json())
+    result = ActivityModel.getActivityData(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -460,7 +449,7 @@ def uploadActData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.uploadActivityData(request.get_json())
+    result = ActivityModel.uploadActivityData(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -478,7 +467,7 @@ def updateActData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.updateActivityData(request.get_json())
+    result = ActivityModel.updateActivityData(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -496,7 +485,7 @@ def deleteActData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.deleteActivityData(request.get_json())
+    result = ActivityModel.deleteActivityData(request.get_json())
     headResult = {
             'code' : '001'
     }
@@ -512,7 +501,7 @@ def updataUnexpiredActData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.updataUnexpiredActivity(request.get_json())
+    result = ActivityModel.updataUnexpiredActivity(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -528,7 +517,7 @@ def getJoinedList():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.getJoinedAuth(request.get_json())
+    result = ActivityModel.getJoinedAuth(request.get_json())
     headResult = {
             'code' : '001',
             'result' : result
@@ -545,7 +534,7 @@ def setJoinedList():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.setJoinedAuth(request.get_json())
+    result = ActivityModel.setJoinedAuth(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -556,7 +545,7 @@ def setJoinedList():
 @app.route('/Fiestadb/Activity/setJoinedListbyGroup' ,methods=['POST']) 
 @jwt_required
 def setJoinedListbyGroup():
-    result = Act.setJoinedAuthbyGroup(request.get_json())
+    result = ActivityModel.setJoinedAuthbyGroup(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -572,7 +561,7 @@ def deleteJoinedAct():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.deleteJoinedAct(request.get_json())
+    result = ActivityModel.deleteJoinedAct(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -583,7 +572,7 @@ def deleteJoinedAct():
 @app.route('/Fiestadb/Activity/getRecommend' ,methods=['POST'])
 def getRecommendAct():
     current_user = get_jwt_identity()
-    result = Act.getRecommendActTest(request.get_json())
+    result = ActivityModel.getRecommendActTest(request.get_json())
     headResult = {
             'code' : '001',
             'result' : result
@@ -594,7 +583,7 @@ def getRecommendAct():
 
 @app.route('/Fiestadb/Activity/Search' ,methods=['POST'])
 def actSearch():
-    result = Act.getSimpleData(request.get_json())
+    result = ActivityModel.getSimpleData(request.get_json())
     headResult = {
             'code' : '001',
             'result' : result
@@ -605,7 +594,7 @@ def actSearch():
 
 @app.route('/Fiestadb/Activity/getActByTag' ,methods=['POST']) 
 def getActByTag():
-    result = Act.getActByTag(request.get_json())
+    result = ActivityModel.getActByTag(request.get_json())
     headResult = {
             'code' : '001',
             'result' : result
@@ -622,7 +611,7 @@ def getCount():
  #   reviewStatus = Account.getReviewStatusForToken(current_user)
   #  if reviewStatus == '020' :
    #     return jsonify({'code':'020'})
-    result = Act.CountPeople(request.get_json())
+    result = ActivityModel.CountPeople(request.get_json())
     headResult = {
             'code' : '001',
             'result' : result
@@ -635,7 +624,7 @@ def getCount():
 @jwt_required
 def getExpire():
     current_user = get_jwt_identity()
-    result = Act.getExpireAct(current_user)
+    result = ActivityModel.getExpireAct(current_user)
     headResult = {
             'code' : '001',
             'result' : result
@@ -648,7 +637,7 @@ def getExpire():
 @jwt_required
 def getTicketData():
     current_user = get_jwt_identity()
-    result = Act.getTicketData(current_user)
+    result = ActivityModel.getTicketData(current_user)
     headResult = {
             'code' : '001',
             'result' : result
@@ -665,7 +654,7 @@ def getTouchPeople():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.getTouchPeople(request.get_json())
+    result = ActivityModel.getTouchPeople(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -683,7 +672,7 @@ def setTouchPeople():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.setTouchPeople(request.get_json())
+    result = ActivityModel.setTouchPeople(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -699,7 +688,7 @@ def deleteTouchPeople():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = Act.deleteTouchPeople(request.get_json())
+    result = ActivityModel.deleteTouchPeople(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -759,7 +748,7 @@ def getShowData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = show.getShowData(request.get_json())
+    result = showModel.getShowData(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -777,7 +766,7 @@ def uploadShowData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = show.uploadShowData(request.get_json())
+    result = showModel.uploadShowData(request.get_json())
     headResult = {
             'code' : '001',
             'result' : []
@@ -795,7 +784,7 @@ def updateShowData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = show.updateShowData(request.get_json())
+    result = showModel.updateShowData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -811,7 +800,7 @@ def deleteShowData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = show.deleteShow(request.get_json())
+    result = showModel.deleteShow(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -827,7 +816,7 @@ def getlotteData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = lotte.getLotteData(request.get_json())
+    result = lotteModel.getLotteData(request.get_json())
     headResult = {
             'code' : '001',
             'result' :result
@@ -844,7 +833,7 @@ def uploadlotteData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = lotte.uploadLotteData(request.get_json())
+    result = lotteModel.uploadLotteData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -860,7 +849,7 @@ def updatelotteData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = lotte.updateLotteData(request.get_json())
+    result = lotteModel.updateLotteData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -876,7 +865,7 @@ def deletelotteData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = lotte.deleteLotteData(request.get_json())
+    result = lotteModel.deleteLotteData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -892,7 +881,7 @@ def getRandomAccount():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = lotte.getRandomAccount(request.get_json())
+    result = lotteModel.getRandomAccount(request.get_json())
     headResult = {
             'code' : '001',
             'result' : []
@@ -910,7 +899,7 @@ def SelectByShow():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = showScore.getDataByShow(request.get_json())
+    result = showScoreModel.getDataByShow(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -928,7 +917,7 @@ def SelectByAuth():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = showScore.getDataByAuth(request.get_json())
+    result = showScoreModel.getDataByAuth(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -946,7 +935,7 @@ def uploadshowScoreData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = showScore.uploadData(request.get_json())
+    result = showScoreModel.uploadData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -962,7 +951,7 @@ def updateshowScoreData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = showScore.updateData(request.get_json())
+    result = showScoreModel.updateData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -978,7 +967,7 @@ def deleteshowScoreData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = showScore.deleteData(request.get_json())
+    result = showScoreModel.deleteData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -994,7 +983,7 @@ def actSelectByAct():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = actScore.getDataByAct(request.get_json())
+    result = actScoreModel.getDataByAct(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -1012,7 +1001,7 @@ def actSelectByAuth():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = actScore.getDataByAuth(request.get_json())
+    result = actScoreModel.getDataByAuth(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -1030,7 +1019,7 @@ def uploadactScoreData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = actScore.uploadData(request.get_json())
+    result = actScoreModel.uploadData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1046,7 +1035,7 @@ def updateactScoreData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = actScore.updateData(request.get_json())
+    result = actScoreModel.updateData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1062,7 +1051,7 @@ def deleteactScoreData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = actScore.deleteData(request.get_json())
+    result = actScoreModel.deleteData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1078,7 +1067,7 @@ def SUFMSelectByAct():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = SUFM.getDataByAct(request.get_json())
+    result = showUserFeedbackModel.getDataByAct(request.get_json())
     headResult = {
             'code' : '001',
             'result' :[]
@@ -1096,7 +1085,7 @@ def uploadSUFMData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = SUFM.uploadData(request.get_json())
+    result = showUserFeedbackModel.uploadData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1112,7 +1101,7 @@ def updateSUFMData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = SUFM.updateData(request.get_json())
+    result = showUserFeedbackModel.updateData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1128,7 +1117,7 @@ def deleteSUFMData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = SUFM.deleteData(request.get_json())
+    result = showUserFeedbackModel.deleteData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1138,7 +1127,7 @@ def deleteSUFMData():
 
 @app.route('/Fiestadb/Ticket/SelectByAct' ,methods=['POST'])
 def _getTicketDatabyActId_():
-    result = TM.getTicketDatabyActId(request.get_json())
+    result = ticketModel.getTicketDatabyActId(request.get_json())
     headResult = {
             'code' : '001',
             'result' :result
@@ -1155,7 +1144,7 @@ def _getTicketData_():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = TM.getTicketData(request.get_json())
+    result = ticketModel.getTicketData(request.get_json())
     headResult = {
             'code' : '001',
             'result' :result
@@ -1172,7 +1161,7 @@ def uploadTicketData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = TM.uploadTicketData(request.get_json())
+    result = ticketModel.uploadTicketData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1188,7 +1177,7 @@ def updateTicketData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = TM.updateTicketData(request.get_json())
+    result = ticketModel.updateTicketData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1204,7 +1193,7 @@ def deleteTicketData():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = TM.deleteTicketData(request.get_json())
+    result = ticketModel.deleteTicketData(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1220,7 +1209,7 @@ def updateTicketNotes():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = TM.updateTicketNotes(request.get_json())
+    result = ticketModel.updateTicketNotes(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1236,7 +1225,7 @@ def updateTicketStatusFalse():
     reviewStatus = Account.getReviewStatusForToken(current_user)
     if reviewStatus == '020' :
         return jsonify({'code':'020'})
-    result = TM.updateTicketStatusFalse(request.get_json())
+    result = ticketModel.updateTicketStatusFalse(request.get_json())
     headResult = {
             'code' : '001',
     }
@@ -1248,7 +1237,7 @@ def updateTicketStatusFalse():
 @jwt_required
 def vaildTicketQRcode():
     authId = get_jwt_identity()
-    result = TM.vaildTicketbyQRcode(request.get_json(),authId)
+    result = ticketModel.vaildTicketbyQRcode(request.get_json(),authId)
     headResult = {
             'code' : '001',
             'result' : result
@@ -1261,7 +1250,7 @@ def vaildTicketQRcode():
 @jwt_required
 def vaildTicket():
     data = get_jwt_identity()
-    result = TM.vaildTicket(request.get_json())
+    result = ticketModel.vaildTicket(request.get_json())
     headResult = {
             'code' : '001'
     }
@@ -1271,7 +1260,7 @@ def vaildTicket():
 
 @app.route('/Fiestadb/QRcode' ,methods=['POST'])
 def QRcode():
-    result = QR.enQRcode(request.get_json())
+    result = QRcodeModel.enQRcode(request.get_json())
     # result = QR.enQRcode("1")
     img_io = BytesIO()
     result.save(img_io, 'PNG')
@@ -1311,20 +1300,20 @@ def uploadImage():
     if _type_ == 'auth':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            result = IM.uploadAuthImg(file,Id) 
+            result = imageModel.uploadAuthImg(file,Id) 
             if result != '001':
                 headResult['code'] = result
     elif _type_ == 'act':
         file = request.files['file']
         print(file)
         if file and allowed_file(file.filename):
-            result = IM.uploadActImg(file,Id) 
+            result = imageModel.uploadActImg(file,Id) 
             if result != '001':
                 headResult['code'] = result
     elif _type_ == 'group':
         file = request.files['file']
         if file and allowed_file(file.filename):
-            result = IM.uploadGroupImg(file,Id) 
+            result = imageModel.uploadGroupImg(file,Id) 
             if result != '001':
                 headResult['code'] = result 
             
@@ -1334,7 +1323,7 @@ def uploadImage():
 @jwt_required
 def test():
     data = get_jwt_identity()
-    result = Act.getRecommendAct(request.get_json(),data)
+    result = ActivityModel.getRecommendAct(request.get_json(),data)
     headResult = {
             'code' : '001',
             'result' : result
@@ -1345,19 +1334,19 @@ def test():
 
 def async_ConfirmSend(app, to, template):
     with app.app_context():
-        SM.ConfirmSend(to,template)
+        SendEmailModel.ConfirmSend(to,template)
 
 def async_uploadAuthImg(app, file,Id):
     with app.app_context():
-        IM.uploadAuthImg(file,Id)
+        imageModel.uploadAuthImg(file,Id)
 
 def async_uploadActImg(app, file,Id):
     with app.app_context():
-        IM.uploadActImg(file,Id)
+        imageModel.uploadActImg(file,Id)
 
 def async_uploadGroupImg(app, file,Id):
     with app.app_context():
-        IM.uploadGroupImg(file,Id)
+        imageModel.uploadGroupImg(file,Id)
 
 
         

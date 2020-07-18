@@ -8,18 +8,18 @@ import datetime
 import pymysql
 import re
 from . import TagModel,confirmModel
-# import TagModel
-# import confirmModel as confirm
+from ..Par import connectDb
 import time
 from flask_jwt_extended import create_access_token
+
 class FiestaDbModel():
     def __init__(self):
         pass
     
     def getAccountData(self,inputJson):
-        db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+        db = pymysql.connect(host=connectDb.dbHost, port=connectDb.dbPort, user='root', passwd=connectDb.dbPassword, db=connectDb.dbName, charset=connectDb.dbCharset)
         cursor = db.cursor()
-        sql = 'select ifnull((select Id from FiestaAccount where Useable = true and userId=\'{userId}\' and userPassword = SHA1(\'{passwd}\') limit 1 ), 0);'.format(userId = inputJson['userId'],passwd = inputJson['userPassword'])
+        sql = 'select ifnull((select Id from FiestaAccount where Useable = true and userId=\'{userId}\' and userPassword = SHA1(\'{userPassword}\') limit 1 ), 0);'.format(userId = inputJson['userId'],userPassword = inputJson['userPassword'])
         cursor.execute(sql)
         result =cursor.fetchone()
         if result[0] == 0 :
@@ -44,10 +44,10 @@ class FiestaDbModel():
                     resultDit[title[i]] = str('https://imgur.com/iNGnle2.jpg')
                 else:
                     resultDit[title[i]] = str(result[i])
-            elif title[i] != 'userPassword':    
+            elif title[i] != 'userPassword':
                 resultDit[title[i]] = str(result[i])
             if title[i] == 'Id' :
-                #CM = confirm.AuthConfirm(result[i]) 
+                CM = confirmModel.AuthConfirm(result[i])
                 expires = datetime.timedelta(days=3)
                 resultDit['token'] = create_access_token(identity=result[i], expires_delta=expires)
         return resultDit

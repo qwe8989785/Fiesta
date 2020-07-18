@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pymysql
-import TagModel
+from . import TagModel
 import math
 import time
 import re

@@ -5,7 +5,7 @@ Created on Fri Feb 28 14:53:05 2020
 @author: user
 """
 import pymysql
-import TagModel
+from . import TagModel
 def getGroupData(inputJson):
     db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
     cursor = db.cursor()

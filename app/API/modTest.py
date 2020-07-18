@@ -1,10 +1,7 @@
-import os
-import os.path
-import sys
-
 from .Mod.authModel import FiestaDbModel
-mod  = FiestaDbModel()
+
 def code():
+    mod  = FiestaDbModel()
     data = {
         'userId':'yang_eddie',
         'userPassword':'qwertyuiop'
