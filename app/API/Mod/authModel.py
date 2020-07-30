@@ -8,7 +8,7 @@ import datetime
 import pymysql
 import re
 from . import TagModel,confirmModel
-from ..Par import connectDb
+from ..Par import connectDB
 import time
 from flask_jwt_extended import create_access_token
 
@@ -17,7 +17,7 @@ class FiestaDbModel():
         pass
     
     def getAccountData(self,inputJson):
-        db = pymysql.connect(host=connectDb.dbHost, port=connectDb.dbPort, user='root', passwd=connectDb.dbPassword, db=connectDb.dbName, charset=connectDb.dbCharset)
+        db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select Id from FiestaAccount where Useable = true and userId=\'{userId}\' and userPassword = SHA1(\'{pwd}\') limit 1 ), 0);'.format(userId = inputJson['userId'],pwd = inputJson['userPassword'])
         cursor.execute(sql)
@@ -53,7 +53,7 @@ class FiestaDbModel():
         return resultDit
     
     def getLoginData(self,Id):
-        db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+        db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select Id from FiestaAccount where Useable = true and Id=\'%s\' limit 1 ), 0);' % Id
         cursor.execute(sql)
