@@ -19,7 +19,7 @@ class FiestaDbModel():
     def getAccountData(self,inputJson):
         db = pymysql.connect(host=connectDb.dbHost, port=connectDb.dbPort, user='root', passwd=connectDb.dbPassword, db=connectDb.dbName, charset=connectDb.dbCharset)
         cursor = db.cursor()
-        sql = 'select ifnull((select Id from FiestaAccount where Useable = true and userId=\'{userId}\' and userPassword = SHA1(\'{userPassword}\') limit 1 ), 0);'.format(userId = inputJson['userId'],userPassword = inputJson['userPassword'])
+        sql = 'select ifnull((select Id from FiestaAccount where Useable = true and userId=\'{userId}\' and userPassword = SHA1(\'{pwd}\') limit 1 ), 0);'.format(userId = inputJson['userId'],pwd = inputJson['userPassword'])
         cursor.execute(sql)
         result =cursor.fetchone()
         if result[0] == 0 :

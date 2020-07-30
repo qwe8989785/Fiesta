@@ -32,7 +32,6 @@ def allowed_file(filename):
 def getApple():
     return app.send_static_file('apple-app-site-association')
 
-
 @app.route('/Fiestadb/Account/select' ,methods=['POST'])
 def get_accountData():
     Account = authModel.FiestaDbModel()
@@ -1350,8 +1349,9 @@ def async_uploadGroupImg(app, file,Id):
 
 
         
-app.debug = False           
+app.debug = True           
 if __name__ == "__main__":
-	server  = WSGIServer(("0.0.0.0", 8888), app)
+	server  = WSGIServer(("127.0.0.1", 5000), app)
 	print("Server started")
 	server.serve_forever()
+    # app.run()
