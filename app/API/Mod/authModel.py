@@ -96,7 +96,9 @@ class FiestaDbModel():
         for i in inputJson.keys():
             keys.append(i)
         for i in inputJson.values():
-            values.append(i)
+            values.append('\'%s\''%i if type(i) == str else i)
+        values[keys.index("userPassword")] = "SHA1(%s)" %values[keys.index("userPassword")]
+
         if 'userName' not in keys:
             return "0041"
         if 'userId' not in keys:
@@ -112,7 +114,7 @@ class FiestaDbModel():
             for i in range(len(values)):
                 if values[i] == inputJson['Tag']:
                     values[i] = Tag
- 
+
         db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select id  from FiestaAccount where Useable = true and userId="%s" limit 1 ), 0);' % inputJson['userId']
@@ -123,32 +125,19 @@ class FiestaDbModel():
             return "005"
         else:
             Id = inputJson['userId']
+
         #確認為學校信箱才可註冊
         rule = '^[a-zA-Z0-9]([._\\-]*[a-z0-9])*@([a-zA-Z0-9]*\.)*([a-z0-9][a-z0-9]*[a-z0-9].)edu.tw$'
-        
         result = re.match(rule,inputJson['Mail_1'])
-        if result == None :
+        if result == None:
             db.close()
-            return '008' 
-        sql = 'insert into FiestaAccount('
-        for i in range(len(keys)):
-            if i == len(keys)-1:
-                sql = sql + keys[i] +')values('
-            else:
-                sql = sql + keys[i] + ',' 
-        for i in range(len(values)):
-            if i == len(values)-1:
-                if values[i] == 'true':
-                    sql = sql + str(values[i]) +');'
-                else:    
-                    sql = sql + '\'' +str(values[i]) + '\'' +');'
-            else:
-                if values[i] =='true':
-                    sql = sql + values[i] + ','
-                elif values[i] == inputJson['userPassword']:
-                    sql = sql + 'SHA1(\'' + str(values[i]) + '\'),'
-                else:    
-                    sql = sql+ '\'' + str(values[i]) + '\''+ ','
+            return '008'
+
+        sql = 'insert into FiestaAccount({keys})values({values})'.format(
+            keys = ','.join(map(str,keys)),
+            values = ','.join(map(str,values))
+        )
+        
         try:
             cursor.execute(sql)
             db.commit()
