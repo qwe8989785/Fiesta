@@ -113,7 +113,7 @@ class FiestaDbModel():
                 if values[i] == inputJson['Tag']:
                     values[i] = Tag
  
-        db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+        db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select id  from FiestaAccount where Useable = true and userId="%s" limit 1 ), 0);' % inputJson['userId']
         cursor.execute(sql)
@@ -122,9 +122,11 @@ class FiestaDbModel():
             db.close()
             return "005"
         else:
-            Id = inputJson['userId']  
-        rull = '^[a-z0-9]([._\\-]*[a-z0-9])*@([a-zA-Z0-9]*\.)*([a-z0-9][a-z0-9]*[a-z0-9].)edu.tw$'
-        result = re.match(rull,inputJson['Mail_1'])
+            Id = inputJson['userId']
+        #確認為學校信箱才可註冊
+        rule = '^[a-zA-Z0-9]([._\\-]*[a-z0-9])*@([a-zA-Z0-9]*\.)*([a-z0-9][a-z0-9]*[a-z0-9].)edu.tw$'
+        
+        result = re.match(rule,inputJson['Mail_1'])
         if result == None :
             db.close()
             return '008' 
@@ -153,7 +155,7 @@ class FiestaDbModel():
             db.close()
             return '001'
         except:
-            print(sql)
+            print("error: faild to execute sql@ " + sql)
             db.rollback()
             db.close()
             return '006'
@@ -174,7 +176,7 @@ class FiestaDbModel():
             for i in range(len(values)):
                 if values[i] == inputJson['Tag']:
                     values[i] = Tag
-        db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+        db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select id  from FiestaAccount where Useable = true and userId="%s" limit 1 ), 0);' % inputJson['userId']
         cursor.execute(sql)

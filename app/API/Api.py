@@ -48,6 +48,7 @@ def get_accountData():
     return jsonify(headResult)   
 
 @app.route('/Fiestadb/Account/upload' ,methods=['POST'])
+#上傳會員資料
 def upload_accountData():
     Account = authModel.FiestaDbModel() 
     result = Account.postUploadData(request.get_json())
@@ -60,6 +61,7 @@ def upload_accountData():
 
 @app.route('/Fiestadb/Account/update' ,methods=['POST'])
 @jwt_required
+#
 def update_accountData():  
     Account = authModel.FiestaDbModel() 
     result = Account.postUpdateData(request.get_json())
