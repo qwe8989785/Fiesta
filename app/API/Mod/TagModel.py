@@ -55,6 +55,9 @@ def createTag(inputJson):
         db.close()
         return '006'
 
+#tag 轉 數字
+#input " 展覽,快閃,公益 "
+#return " '1,2,3' "
 def setTag(tag):
     if tag == None :
         return None
@@ -70,5 +73,5 @@ def setTag(tag):
         else:
             digArray = digArray + str(cursor.fetchone()[0]) + ','
     db.close()
-    return digArray
+    return '\'%s\''%digArray
     

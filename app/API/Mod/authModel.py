@@ -95,10 +95,6 @@ class FiestaDbModel():
         values = []
         for i in inputJson.keys():
             keys.append(i)
-        for i in inputJson.values():
-            values.append('\'%s\''%i if type(i) == str else i)
-        values[keys.index("userPassword")] = "SHA1(%s)" %values[keys.index("userPassword")]
-
         if 'userName' not in keys:
             return "0041"
         if 'userId' not in keys:
@@ -109,11 +105,12 @@ class FiestaDbModel():
             return "0044"
         if 'Useable' not in keys:
             return "0045"
+        
+        for i in inputJson.values():
+            values.append('null' if i is None or i == "" else '\'%s\''%i)
+        values[keys.index("userPassword")] = "SHA1(%s)" %values[keys.index("userPassword")]
         if 'Tag' in keys:
-            Tag = TagModel.setTag(inputJson['Tag'])
-            for i in range(len(values)):
-                if values[i] == inputJson['Tag']:
-                    values[i] = Tag
+            values[keys.index("Tag")] = TagModel.setTag(inputJson['Tag'])
 
         db = connectDB.connDB()
         cursor = db.cursor()
