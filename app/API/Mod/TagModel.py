@@ -59,8 +59,8 @@ def createTag(inputJson):
 #input " 展覽,快閃,公益 "
 #return " '1,2,3' "
 def setTag(tag):
-    if tag == None :
-        return None
+    if tag == None or tag == "":
+        return 'null'
     db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
     cursor = db.cursor()
     chArray = re.split(r',',tag)
