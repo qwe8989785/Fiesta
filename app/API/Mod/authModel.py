@@ -201,13 +201,14 @@ class FiestaDbModel():
             db.close()
             return "006" 
 
+    #刪除會員資料(需填帳號)
     def postDeleteData(self,inputJson):
         keys = []
         for i in inputJson.keys():
             keys.append(i)
         if 'userId' not in keys:
             return "0042"
-        db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+        db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select id  from FiestaAccount where Useable = true and userId="%s" limit 1 ), 0);' % inputJson['userId']
         cursor.execute(sql)
@@ -236,6 +237,7 @@ class FiestaDbModel():
             db.rollback()
             db.close()
             return "006"
+
     def Confirm_Id(self,inputJson):
         updateDict = inputJson
         keys = []

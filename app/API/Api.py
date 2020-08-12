@@ -31,7 +31,8 @@ def allowed_file(filename):
 @app.route('/.well-known/apple-app-site-association' ,methods=['GET'])
 def getApple():
     return app.send_static_file('apple-app-site-association')
-
+    
+#拿取會員資料(需填帳號密碼)
 @app.route('/Fiestadb/Account/select' ,methods=['POST'])
 def get_accountData():
     Account = authModel.FiestaDbModel()
@@ -45,10 +46,10 @@ def get_accountData():
     if resultDit == '003':
         headResult['code'] = '003'
     headResult['result'].append(resultDit)
-    return jsonify(headResult)   
-
+    return jsonify(headResult)  
+     
+#上傳會員資料(需填必填欄位)
 @app.route('/Fiestadb/Account/upload' ,methods=['POST'])
-#上傳會員資料
 def upload_accountData():
     Account = authModel.FiestaDbModel() 
     result = Account.postUploadData(request.get_json())
@@ -59,9 +60,9 @@ def upload_accountData():
         headResult['code'] = result
     return jsonify(headResult) 
 
+#更新會員資料(需填帳號)  
 @app.route('/Fiestadb/Account/update' ,methods=['POST'])
 @jwt_required
-#
 def update_accountData():  
     Account = authModel.FiestaDbModel() 
     result = Account.postUpdateData(request.get_json())
@@ -72,6 +73,7 @@ def update_accountData():
         headResult['code'] = result
     return jsonify(headResult) 
 
+#刪除會員資料(需填帳號)
 @app.route('/Fiestadb/Account/delete' ,methods=['POST'])
 @jwt_required
 def delect_accountData():
