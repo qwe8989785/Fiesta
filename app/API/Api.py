@@ -4,6 +4,7 @@ import numpy as np
 from .Mod import (groupModel,authModel,TagModel,ticketModel,SendEmailModel,ActivityModel,confirmModel,
 showModel,lotteModel,showScoreModel,showUserFeedbackModel,actScoreModel,actScoreModel,QRcodeModel,
 imageModel)
+from .Par import connectDB,connectSvr
 from flask_cors import CORS
 from threading import Thread
 from gevent.pywsgi import WSGIServer
@@ -86,6 +87,7 @@ def delect_accountData():
         headResult['code'] = result
     return jsonify(headResult) 
 
+#寄出驗證信
 @app.route('/Fiestadb/Account/SendConfirm' ,methods=['POST']) 
 def SendConfirmEmail():
     Account = authModel.FiestaDbModel() 
@@ -97,13 +99,13 @@ def SendConfirmEmail():
     if(Id =='002' or Id == '0042' or Id =='004C'):
         headResult['code'] = Id
         return jsonify(headResult) 
-    db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+    db = connectDB.connDB()
     cursor = db.cursor()
     sql = 'select Mail from ReviewStatus where accountId = \'%s\'' %Id
     cursor.execute(sql)
     Mail = cursor.fetchone()
-    rull = '^[a-z0-9]([._\\-]*[a-z0-9])*@([a-z0-9][-a-z0-9]*[a-z0-9].)edu.tw$'
-    result = re.match(rull,Mail[0])
+    rule = '^[a-zA-Z0-9]([._\\-]*[a-z0-9])*@([a-zA-Z0-9]*\.)*([a-z0-9][a-z0-9]*[a-z0-9].)edu.tw$'
+    result = re.match(rule,Mail[0])
     if result == None :
         headResult['code'] = '008'
         db.close()
@@ -111,9 +113,9 @@ def SendConfirmEmail():
     cm = confirmModel.AuthConfirm(Id)
     token = cm.create_confirm_token()
     if inputData['type'] == '1':    
-        confirm_url = 'fiesta.nkust.edu.tw:8888/Fiestadb/Account/ValidateEmail?token=' + str(token)[2:-1]
+        confirm_url = connectSvr.svrHost + ":" + connectSvr.svrPort + '/Fiestadb/Account/ValidateEmail?token=' + str(token)[2:-1]
     if inputData['type'] == '2':    
-        confirm_url = 'fiesta.nkust.edu.tw:8888/Fiestadb/Account/ForgetPassword?token=' + str(token)[2:-1]
+        confirm_url = connectSvr.svrHost + ":" + connectSvr.svrPort + 'Fiestadb/Account/ForgetPassword?token=' + str(token)[2:-1]
     html = render_template('userMailConfirm.html', confirm_url=confirm_url)
     thr = Thread(target=async_ConfirmSend, args=[app,Mail[0], html])
     thr.start()

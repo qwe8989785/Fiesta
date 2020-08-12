@@ -89,7 +89,8 @@ class FiestaDbModel():
                 expires = datetime.timedelta(days=3)
                 resultDit['token'] = create_access_token(identity=result[i], expires_delta=expires)
         return resultDit
-    
+        
+    #上傳會員資料(需填必填欄位)
     def postUploadData(self,inputJson):
         keys = []
         values = []
@@ -134,7 +135,6 @@ class FiestaDbModel():
             keys = ','.join(map(str,keys)),
             values = ','.join(map(str,values))
         )
-        
         try:
             cursor.execute(sql)
             db.commit()
@@ -237,7 +237,8 @@ class FiestaDbModel():
             db.rollback()
             db.close()
             return "006"
-
+            
+    #寄出驗證信
     def Confirm_Id(self,inputJson):
         updateDict = inputJson
         keys = []
@@ -247,7 +248,7 @@ class FiestaDbModel():
             return "0042"
         if 'type' not in keys:
             return "004C"
-        db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+        db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select id  from FiestaAccount where Useable = true and userId="%s" limit 1 ), 0);' % updateDict['userId']
         cursor.execute(sql)
