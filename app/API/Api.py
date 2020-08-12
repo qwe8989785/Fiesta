@@ -121,6 +121,7 @@ def SendConfirmEmail():
     thr.start()
     return jsonify(headResult)
 
+#驗證信箱
 @app.route('/Fiestadb/Account/ValidateEmail' ,methods=['GET']) 
 def ValidateConfirmEmail_SighUp():
     headResult = {

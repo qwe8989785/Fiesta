@@ -1,0 +1,25 @@
+{
+
+    "applinks": {
+
+        "apps": [],
+
+        "details": [
+
+            {
+
+                "appID": "com.Fiesta-Network.inc.Fiest",
+
+                "paths": [
+
+                    "*"
+
+                ]
+
+            }
+
+        ]
+
+    }
+
+}
