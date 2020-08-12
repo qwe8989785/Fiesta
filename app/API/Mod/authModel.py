@@ -146,22 +146,22 @@ class FiestaDbModel():
             db.close()
             return '006'
         
+    #更新會員資料(需填帳號)   
     def postUpdateData(self,inputJson):
         keys = []
         values = []
         for i in inputJson.keys():
             keys.append(i)
         for i in inputJson.values():
-            values.append(i)
+            values.append('null' if i is None or i == "" else '\'%s\''%i)
+        if 'Tag' in keys:
+            values[keys.index("Tag")] = TagModel.setTag(inputJson['Tag'])
         if 'userId' not in keys :
             return "0042"
         if 'Useable' in keys:
             return "0046"
-        if 'Tag' in keys:
-            Tag = TagModel.setTag(inputJson['Tag'])
-            for i in range(len(values)):
-                if values[i] == inputJson['Tag']:
-                    values[i] = Tag
+        values[keys.index("userPassword")] = "SHA1(%s)" %values[keys.index("userPassword")]
+
         db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select id  from FiestaAccount where Useable = true and userId="%s" limit 1 ), 0);' % inputJson['userId']
@@ -172,13 +172,12 @@ class FiestaDbModel():
             return "002"
         Id = result[0]
         keys.remove('userId')
-        values.remove(inputJson['userId'])
-        sql = 'update FiestaAccount set '
-        for i in range(len(keys)):
-            if i == len(keys)-1:
-                sql = sql + keys[i] + '=' + '\'' + str(values[i]) + '\'' + ' where Id = \'%s\'' % Id
-            else:
-                sql = sql + keys[i] + '=' + '\'' + str(values[i]) + '\',' 
+        values.remove('\''+inputJson['userId']+'\'')
+
+        sql = 'update FiestaAccount SET {data} where Id = {id}'.format(
+            data = ','.join(a+ '='+ str(b) for a,b in zip(keys,values)),
+            id = Id
+        )
         try:
             cursor.execute(sql)
             db.commit()
@@ -186,6 +185,7 @@ class FiestaDbModel():
             db.rollback()
             db.close()
             return "006" 
+
         if 'Mail_1' in keys:
             sql = 'select Id from ReviewStatus where accountId = \'%s\''% Id
             cursor.execute(sql)
@@ -200,6 +200,7 @@ class FiestaDbModel():
             db.rollback()
             db.close()
             return "006" 
+
     def postDeleteData(self,inputJson):
         keys = []
         for i in inputJson.keys():
