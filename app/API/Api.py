@@ -284,8 +284,9 @@ def changePassword():
     if(data == False):
         headResult['code'] = '009'
         return jsonify(headResult)
-    elif(data['user_id'] != request.get_json()['userId']):
-        return "0048" # 
+    elif(data['authID'] != request.get_json()['authID']):
+        headResult['code'] = '0048'# 不確定是不是用這代號 009 跟 006好像都可以
+        return jsonify(headResult) 
     else:
         result = Account.changePassword(request.get_json())
         if result != '001':

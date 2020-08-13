@@ -460,20 +460,20 @@ class FiestaDbModel():
         keys = []
         for i in inputJson.keys():
             keys.append(i)
-        if 'userId' not in keys:
-            return '0042'
+        if 'authID' not in keys:
+            return '0048'
         if 'userPassword' not in keys:
             return '0043'
         db = connectDB.connDB()
         cursor = db.cursor()
-        sql = 'select ifnull((select Id from FiestaAccount where Id="%s" limit 1 ), 0);' % inputJson['userId']
+        sql = 'select ifnull((select Id from FiestaAccount where Id="%s" limit 1 ), 0);' % inputJson['authID']
         # print(sql)
         cursor.execute(sql)
         Id = cursor.fetchone()
         if Id[0] == 0:
             db.close()
             return '002' 
-        sql = 'update FiestaAccount set userPassword = Sha1(\'{passwd}\') where Id = \'{Id}\';'.format(passwd = inputJson['userPassword'],Id = inputJson['userId'])
+        sql = 'update FiestaAccount set userPassword = Sha1(\'{passwd}\') where Id = \'{Id}\';'.format(passwd = inputJson['userPassword'],Id = inputJson['authID'])
         try:
             cursor.execute(sql)
             db.commit()

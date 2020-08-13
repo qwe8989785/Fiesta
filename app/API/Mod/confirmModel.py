@@ -19,7 +19,7 @@ class AuthConfirm():
         :return: 回傳令牌，參數為該註冊用戶的id
         """
         s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expires_in=expires_in)
-        return s.dumps({'user_id': self.id})
+        return s.dumps({'authID': self.id})
     
     def validate_confirm_token(self, token):
         """
