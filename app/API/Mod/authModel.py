@@ -454,3 +454,32 @@ class FiestaDbModel():
                     array['Photo'] = str('https://imgur.com/iNGnle2.jpg')
                 data.append(array)
         return data
+    
+    #更改會員密碼
+    def changePassword(self,inputJson):
+        keys = []
+        for i in inputJson.keys():
+            keys.append(i)
+        if 'userId' not in keys:
+            return '0042'
+        if 'userPassword' not in keys:
+            return '0043'
+        db = connectDB.connDB()
+        cursor = db.cursor()
+        sql = 'select ifnull((select Id from FiestaAccount where Id="%s" limit 1 ), 0);' % inputJson['userId']
+        # print(sql)
+        cursor.execute(sql)
+        Id = cursor.fetchone()
+        if Id[0] == 0:
+            db.close()
+            return '002' 
+        sql = 'update FiestaAccount set userPassword = Sha1(\'{passwd}\') where Id = \'{Id}\';'.format(passwd = inputJson['userPassword'],Id = inputJson['userId'])
+        try:
+            cursor.execute(sql)
+            db.commit()
+            db.close()
+            return "001"
+        except:
+            db.rollback()
+            db.close()
+            return '006'

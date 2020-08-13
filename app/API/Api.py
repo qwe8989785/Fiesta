@@ -270,6 +270,28 @@ def SearchById():
         headResult['code'] = result
     return jsonify(headResult)
 
+#更改會員密碼
+@app.route('/Fiestadb/Account/changePassword' ,methods=['POST']) 
+def changePassword():
+    token = request.args['token']
+    cm = confirmModel.AuthConfirm(0)
+    Account = authModel.FiestaDbModel()
+    data = cm.validate_confirm_token(token)
+    # print("data = " + str(data))
+    headResult = {
+                'code' : '001',
+        }
+    if(data == False):
+        headResult['code'] = '009'
+        return jsonify(headResult)
+    elif(data['user_id'] != request.get_json()['userId']):
+        return "0048" # 
+    else:
+        result = Account.changePassword(request.get_json())
+        if result != '001':
+            headResult['code'] = result
+        return jsonify(headResult)
+
 @app.route('/Fiestadb/Group/select' ,methods=['POST']) 
 @jwt_required
 def gotGroupData():
