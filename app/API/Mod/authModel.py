@@ -259,8 +259,9 @@ class FiestaDbModel():
         db.close()
         return result[0]
    
+   #驗證信箱
     def Reviewstatus_Update(self,Id):
-        db = pymysql.connect(host='localhost', port=3306, user='root', passwd='kmslab', db='Fiesta', charset='utf8mb4')
+        db = connectDB.connDB()
         cursor = db.cursor()
         sql = 'select ifnull((select Id from FiestaAccount where Id="%s" limit 1 ), 0);' % Id
         cursor.execute(sql)

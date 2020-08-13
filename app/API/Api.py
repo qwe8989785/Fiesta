@@ -115,7 +115,7 @@ def SendConfirmEmail():
     if inputData['type'] == '1':    
         confirm_url = connectSvr.svrHost + ":" + connectSvr.svrPort + '/Fiestadb/Account/ValidateEmail?token=' + str(token)[2:-1]
     if inputData['type'] == '2':    
-        confirm_url = connectSvr.svrHost + ":" + connectSvr.svrPort + 'Fiestadb/Account/ForgetPassword?token=' + str(token)[2:-1]
+        confirm_url = connectSvr.svrHost + ":" + connectSvr.svrPort + '/Fiestadb/Account/ForgetPassword?token=' + str(token)[2:-1]
     html = render_template('userMailConfirm.html', confirm_url=confirm_url)
     thr = Thread(target=async_ConfirmSend, args=[app,Mail[0], html])
     thr.start()
@@ -129,7 +129,7 @@ def ValidateConfirmEmail_SighUp():
     }
     token = request.args['token']
     cm = confirmModel.AuthConfirm(0)
-    Account = authModel.FiestaDbModel() 
+    Account = authModel.FiestaDbModel()
     data = cm.validate_confirm_token(token)
     if(data == False):
         headResult['code'] = '009'
@@ -162,14 +162,16 @@ def ValidateLogin():
         headResult['result'].append(result)
         return jsonify(headResult)    
     
+#忘記密碼
 @app.route('/Fiestadb/Account/ForgetPassword' ,methods=['GET']) 
 def ValidateConfirmEmail_Forget():
     headResult = {
             'code' : '001'
     }
     token = request.args['token']
-    cm = confirmModel.authModelConfirm(0)
+    cm = confirmModel.AuthConfirm(0)
     data = cm.validate_confirm_token(token)
+    headResult['Id'] = data
     if(data == False):
         headResult['code'] = '009'
         return jsonify(headResult)
